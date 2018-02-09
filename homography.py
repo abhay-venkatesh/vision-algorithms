@@ -16,7 +16,7 @@ if __name__ == '__main__' :
    	# corners = A[tuple(slice(None, None, j-1) for j in A.shape)]
     # pts_src = np.array(corners.reshape(4,2))
     # print(pts_src)
-    pts_src = np.array([[0, 0], [0, 1439], [899, 0], [899, 1439]])
+    pts_src = np.array([[863, 140], [916, 136], [865, 185], [892, 160]])
  
  
     # Read destination image.
@@ -26,7 +26,7 @@ if __name__ == '__main__' :
     # corners = B[::B.shape[0]-1, ::B.shape[1]-1]
     # corners = A[tuple(slice(None, None, j-1) for j in A.shape)]
     # pts_src = np.array(corners.reshape(4,2))
-    pts_dst = np.array([[0, 0], [0, 1439], [899, 0], [899, 1439]])
+    pts_dst = np.array([[863, 131], [921, 123], [870, 167], [900, 146]])
  
     # Calculate Homography
     h, status = cv2.findHomography(pts_src, pts_dst)

@@ -8,11 +8,23 @@ Given two images A and B, perform:
 """
 import numpy as np 
 import cv2
+from multipledispatch import dispatch
 
 class OpticalFlowTransformer:
 	def __init__(self):
 		pass
 
+	@dispatch(object)	
+	def compute_homography(self, path):
+		"""
+			Computes an optical flow in the images located at path.
+			Args:
+
+
+		"""
+		pass
+
+	@dispatch(object, object)
 	def compute_homography(self, A_path, B_path):
 		"""
 			Computes a homography H from two images A and B by computing
@@ -61,31 +73,13 @@ class OpticalFlowTransformer:
 		good_new = p1[st==1]
 		good_old = p0[st==1]
 
-		# Get four points for each frame
-		A = []
-		B = []
-		j = 0
+		pts_dst = []
+		pts_src = []
 		for i,(new,old) in enumerate(zip(good_new,good_old)):
-			j %= 4
 			a,b = new.ravel()
 			c,d = old.ravel()
-
-			if j > (len(A)-1):
-				A.append([])
-				B.append([])
-
-			A[j].append([a,b])
-			B[j].append([c,d])
-
-			j += 1
-
-		pts_dst = []
-		pts_dst.extend([np.mean(A[0],0), np.mean(A[1],0), np.mean(A[2],0), 
-					   np.mean(A[3],0)])
-
-		pts_src = []
-		pts_src.extend([np.mean(B[0],0), np.mean(B[1],0), np.mean(B[2],0), 
-					   np.mean(B[3],0)])
+			pts_dst.append([a,b])
+			pts_src.append([c,d])
 
 		pts_dst = np.array(pts_dst)
 		pts_src = np.array(pts_src)
