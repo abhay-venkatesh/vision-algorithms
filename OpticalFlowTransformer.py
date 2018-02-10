@@ -8,24 +8,86 @@ Given two images A and B, perform:
 """
 import numpy as np 
 import cv2
-from multipledispatch import dispatch
+import itertools
 
 class OpticalFlowTransformer:
 	def __init__(self):
 		pass
 
-	@dispatch(object)	
-	def compute_homography(self, path):
+	def SIFT_for_interest_points(self, img, template, distance=200):
+	    detector = cv2.FeatureDetector_create("SIFT")
+	    descriptor = cv2.DescriptorExtractor_create("SIFT")
+	    skp = detector.detect(img)
+	    skp, sd = descriptor.compute(img, skp)
+
+	    tkp = detector.detect(template)
+	    tkp, td = descriptor.compute(template, tkp)
+
+	    flann_params = dict(algorithm=1, trees=4)
+	    flann = cv2.flann_Index(sd, flann_params)
+	    idx, dist = flann.knnSearch(td, 1, params={})
+	    del flann
+
+	    dist = dist[:,0]/2500.0
+	    dist = dist.reshape(-1,).tolist()
+	    idx = idx.reshape(-1).tolist()
+	    indices = range(len(dist))
+	    indices.sort(key=lambda i: dist[i])
+	    dist = [dist[i] for i in indices]
+	    idx = [idx[i] for i in indices]
+	    skp_final = []
+	    for i, dis in itertools.izip(idx, dist):
+	        if dis < distance:
+	            skp_final.append(skp[i])
+
+	    flann = cv2.flann_Index(td, flann_params)
+	    idx, dist = flann.knnSearch(sd, 1, params={})
+	    del flann
+
+	    dist = dist[:,0]/2500.0
+	    dist = dist.reshape(-1,).tolist()
+	    idx = idx.reshape(-1).tolist()
+	    indices = range(len(dist))
+	    indices.sort(key=lambda i: dist[i])
+	    dist = [dist[i] for i in indices]
+	    idx = [idx[i] for i in indices]
+	    tkp_final = []
+	    for i, dis in itertools.izip(idx, dist):
+	        if dis < distance:
+	            tkp_final.append(tkp[i])
+
+	    return skp_final, tkp_final
+
+	def compute_homography_using_SIFT(self, A_path, B_path):
 		"""
-			Computes an optical flow in the images located at path.
+
 			Args:
+				A_path: Path to image A
+				B_path: Path to image B
 
-
+			Returns:
+				None
 		"""
-		pass
+		frame1 = cv2.imread(A_path)
+		frame2 = cv2.imread(B_path)
 
-	@dispatch(object, object)
-	def compute_homography(self, A_path, B_path):
+		frame1_key_points, frame2_key_points = self.SIFT_for_interest_points(frame1, frame2)
+
+		frame1_interest_points = []
+		for point in frame1_key_points:
+			frame1_interest_points.append([point.pt[0], point.pt[1]])
+		frame1_interest_points = np.array(frame1_interest_points)
+
+		frame2_interest_points = []
+		for point in frame2_key_points:
+			frame2_interest_points.append([point.pt[0], point.pt[1]])
+		frame2_interest_points = np.array(frame2_interest_points)
+		
+		print(len(frame1_interest_points))
+		print(len(frame2_interest_points))
+		self.H, status = cv2.findHomography(frame1_interest_points[:len(frame2_interest_points)], frame2_interest_points)
+
+	def compute_homography_from_optical_flow(self, A_path, B_path):
 		"""
 			Computes a homography H from two images A and B by computing
 			the optical flow between them using the Lucas-Kanade algorithm.
@@ -95,7 +157,7 @@ class OpticalFlowTransformer:
 
 def main():
 	oft = OpticalFlowTransformer()
-	oft.compute_homography('./images/pic0.png', './images/pic1.png')
+	oft.compute_homography_using_SIFT('./images/pic0.png', './images/pic1.png')
 	oft.apply_homography('./images/pic0.png')
 
 if __name__ == '__main__':

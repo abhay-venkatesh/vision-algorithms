@@ -78,8 +78,8 @@ def main():
     frame1 = cv2.imread('./images/pic0.png')
     frame2 = cv2.imread('./images/pic1.png')
     skp, tkp = findKeyPoints(frame1, frame2)
-    print(skp[0])
-    newimg = drawKeyPoints(frame1, frame2, skp, tkp)
+    print(skp[0].pt[1])
+    # newimg = drawKeyPoints(frame1, frame2, skp, tkp)
     # cv2.imshow("image", newimg)
     # cv2.waitKey(0)
 
