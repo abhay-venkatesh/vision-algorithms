@@ -10,7 +10,7 @@ import numpy as np
 import cv2
 
 frame1 = cv2.imread('./images/pic0.png')
-frame2 = cv2.imread('./images/pic1.png')
+frame2 = cv2.imread('./images/pic2.png')
 
 # params for ShiTomasi corner detection
 feature_params = dict(maxCorners = 100,
@@ -25,7 +25,11 @@ lk_params = dict(winSize  = (15,15),
                  			 cv2.TERM_CRITERIA_COUNT, 10, 0.03))
 
 # Generate some random colors
-color = np.random.randint(0,255,(100,3))
+color_B = np.random.randint(0,1,(100))
+color_G = np.random.randint(0,1,(100))
+color_R = np.random.randint(254,255,(100))
+color = np.stack((color_B, color_G, color_R), axis=1)
+print(color.shape)
 
 # Find corners in first frame
 frame1_gray = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
@@ -40,8 +44,6 @@ frame2_gray = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
 p1, st, err = cv2.calcOpticalFlowPyrLK(frame1_gray, frame2_gray, p0, 
 									   None, **lk_params)
 
-print(np.shape(p1))
-
 # Select good points
 good_new = p1[st==1]
 good_old = p0[st==1]
@@ -53,6 +55,7 @@ for i,(new,old) in enumerate(zip(good_new,good_old)):
 	mask = cv2.line(mask, (a,b),(c,d), color[i].tolist(), 2)
 	frame2 = cv2.circle(frame2,(a,b),5,color[i].tolist(),-1)
 
-img = cv2.add(frame2, mask)
 
-cv2.imwrite('frame.png',img)
+img = cv2.add(frame2, mask)
+img = cv2.resize(img, (480, 320))
+cv2.imwrite("test.png", img)
