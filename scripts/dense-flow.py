@@ -628,8 +628,8 @@ def resample(img, sz):
 import numpy as np 
 import cv2
 
-frame1 = cv2.imread('./flowset/pic30.png')
-frame2 = cv2.imread('./flowset/pic30-4.png')
+frame1 = cv2.imread('./images/pic39-0.png')
+frame2 = cv2.imread('./images/pic39-10.png')
 frame1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
 frame2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
 

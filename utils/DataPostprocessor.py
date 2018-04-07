@@ -58,5 +58,3 @@ class DataPostprocessor:
     colored_segmentation = self.segmentation_colors(segmentation)
     cv2.imwrite('./images/predicted-real-' + str(i) + '-iter' + str(iterations) + '.png', colored_segmentation)
 
-
-
